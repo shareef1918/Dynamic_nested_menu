@@ -1,0 +1,132 @@
+<div>
+  <div class="main-menu">
+    <form [formGroup]="menuForm">
+      <!-- Grand Parent Level-->
+      <mat-card
+        *ngFor="let mainMenu of menuForm.controls; let mainIndex = index"
+        class="main-card"
+      >
+        <div class="main-menu-container" [formGroup]="mainMenu">
+          <div class="input">
+            <mat-form-field class="example-full-width">
+              <mat-label>{{ mainIndex + 1 }}. Main Menu</mat-label>
+              <input
+                type="text"
+                matInput
+                [formControl]="mainMenu.controls.name"
+                placeholder="Ex. Home"
+                (change)="generateMenuList()"
+              />
+            </mat-form-field>
+          </div>
+          <!--Grand Parent icons-->
+          <div class="icons-container">
+            <mat-icon
+              aria-hidden="false"
+              aria-label="Example home icon"
+              (click)="addMainMenu()"
+              >add</mat-icon
+            >
+            <mat-icon
+              aria-hidden="false"
+              aria-label="Example home icon"
+              (click)="deleteMainMenu(mainIndex)"
+              >delete</mat-icon
+            >
+          </div>
+        </div>
+
+        <mat-card
+          *ngFor="
+            let subMenu of mainMenu.controls.subMenu.controls;
+            let subIndex = index
+          "
+        >
+          <div class="main-menu-container" [formGroup]="subMenu">
+            <div class="input">
+              <mat-form-field class="example-full-width">
+                <mat-label>{{ subIndex + 1 }}. Sub Menu</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  [formControl]="subMenu.controls.name"
+                  placeholder="Ex. Home"
+                />
+              </mat-form-field>
+            </div>
+            <div class="icons-container">
+              <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                (click)="addSubMenu(subIndex)"
+                >add</mat-icon
+              >
+              <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                (click)="deleteSubMenu(mainIndex, subIndex)"
+                >delete</mat-icon
+              >
+            </div>
+          </div>
+
+          <mat-card
+            *ngFor="
+              let subMenuInner of subMenu.controls.subMenuInner.controls;
+              let innerIndex = index
+            "
+          >
+            <div class="main-menu-container" [formGroup]="subMenuInner">
+              <div class="input">
+                <mat-form-field class="example-full-width">
+                  <mat-label>{{ innerIndex + 1 }}. Sub Inner Menu</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    [formControl]="subMenuInner.controls.name"
+                    placeholder="Ex. Home"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="icons-container">
+                <mat-icon
+                  aria-hidden="false"
+                  aria-label="Example add icon"
+                  (click)="addSubInnerMenu(mainIndex, subIndex)"
+                  >add</mat-icon
+                >
+                <mat-icon
+                  aria-hidden="false"
+                  aria-label="Example delete icon"
+                  (click)="deleteSubInnerMenu(mainIndex, subIndex, innerIndex)"
+                  >delete</mat-icon
+                >
+              </div>
+            </div>
+          </mat-card>
+        </mat-card>
+      </mat-card>
+    </form>
+  </div>
+
+  <button
+    mat-button
+    [matMenuTriggerFor]="animals"
+    (click)="generateMenuList()"
+    [disabled]="menuDisabled"
+  >
+    Menu preview
+  </button>
+  <mat-menu #animals="matMenu">
+    <span *ngFor="let mainItems of menuList">
+      <button mat-menu-item [matMenuTriggerFor]="menu.childMenu">
+        {{ mainItems.name }}
+      </button>
+      <app-menu-item #menu [items]="mainItems.subMenu"></app-menu-item>
+      <!-- Leaf node buttons here -->
+      <span *ngIf="!mainItems.subMenu || mainItems.subMenu.length === 0">
+        <button>Test Name</button>
+      </span>
+    </span>
+  </mat-menu>
+</div>

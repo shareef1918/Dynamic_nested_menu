@@ -1,0 +1,40 @@
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.main-menu {
+  padding: 20px;
+  border: 2px sold silver;
+  background-color: lightgrey;
+}
+.main-menu-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.input {
+  flex-grow: 3;
+}
+.icons-container {
+  padding: 20px;
+  & mat-icon {
+    margin: 0px 10px;
+    padding: 5px;
+    &:hover {
+      cursor: pointer;
+      background-color: lightgray;
+      border-radius: 30px;
+      box-shadow: 2px 2px 2px 2px whitesmoke;
+    }
+  }
+}
+
+.main-card {
+  margin-bottom: 15px;
+}
