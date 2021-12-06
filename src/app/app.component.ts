@@ -29,7 +29,6 @@ export interface Menu {
 })
 export class AppComponent implements OnInit {
   menuDisabled = true;
-  public nameExp = '^[a-zA-Z+][a-zA-Z0-9-]+$';
   public menuForm: any;
   constructor(private fb: FormBuilder) {}
   ngOnInit() {
@@ -43,7 +42,7 @@ export class AppComponent implements OnInit {
             name: new FormControl('', { validators: Validators.required }),
             subMenuInner: this.fb.array([
               this.fb.group({
-                id: this.fb.control(new Date()),
+                id: this.generateRandomNumber(),
                 name: new FormControl('', {
                   validators: Validators.required,
                 }),
@@ -55,33 +54,8 @@ export class AppComponent implements OnInit {
     ]);
   }
 
-  // emailFormControl = new FormControl('', [Validators.required]);
   public menuList: Menu[] = [];
 
-  addGrandParentMenuItem() {
-    const sampleObject = {
-      id: this.generateRandomNumber(),
-      name: '',
-      subMenu: [
-        {
-          id: this.generateRandomNumber(),
-          name: 'Sub Menu',
-          subMenuInner: [
-            {
-              id: this.generateRandomNumber(),
-              name: 'Inner Sub menu',
-            },
-          ],
-        },
-      ],
-    };
-    this.menuList.push(sampleObject);
-    console.log(this.menuList);
-  }
-  deleteGrandParentMenuItem(menuId: string) {
-    let index = this.menuList.findIndex((item) => item.id === menuId);
-    this.menuList.splice(index, 1);
-  }
   generateRandomNumber() {
     return (Math.random() * 100000).toFixed();
   }
@@ -97,7 +71,7 @@ export class AppComponent implements OnInit {
           name: new FormControl('', { validators: Validators.required }),
           subMenuInner: this.fb.array([
             this.fb.group({
-              id: this.fb.control(new Date()),
+              id: this.generateRandomNumber(),
               name: new FormControl('', {
                 validators: Validators.required,
               }),
@@ -107,6 +81,7 @@ export class AppComponent implements OnInit {
       ]),
     });
     mainMenu.push(menuGroup);
+    this.validateNestedForm();
   }
 
   addSubMenu(index: number) {
@@ -117,7 +92,7 @@ export class AppComponent implements OnInit {
       name: this.fb.control('', { validators: Validators.required }),
       subMenuInner: this.fb.array([
         this.fb.group({
-          id: this.fb.control(new Date()),
+          id: this.generateRandomNumber(),
           name: new FormControl('', {
             validators: Validators.required,
           }),
@@ -125,6 +100,7 @@ export class AppComponent implements OnInit {
       ]),
     });
     mainMenu.push(subMenuGroup);
+    this.validateNestedForm();
   }
 
   addSubInnerMenu(mainIndex: number, subIndex: number) {
@@ -135,23 +111,28 @@ export class AppComponent implements OnInit {
       name: this.fb.control('', { validators: Validators.required }),
     });
     subMenuInner.push(subInnerMenuItem);
+    this.validateNestedForm();
   }
 
   deleteMainMenu(index: number) {
     this.menuForm.removeAt(index);
+    this.validateNestedForm();
   }
   deleteSubMenu(mainIndex: number, subIndex: number) {
     this.menuForm.controls[mainIndex].controls.subMenu.removeAt(subIndex);
+    this.validateNestedForm();
   }
   deleteSubInnerMenu(mainIndex: number, subIndex: number, innerIndex: number) {
     this.menuForm.controls[mainIndex].controls.subMenu.controls[
       subIndex
     ].controls.subMenuInner.removeAt(innerIndex);
+    this.validateNestedForm();
   }
 
   generateMenuList() {
     const menuList: any[] = [];
     const mainMenu = this.menuForm.controls;
+    //main menu
     mainMenu.map((mainItem: any, mainIndex: number) => {
       const obj = {
         name: mainItem.controls.name.value,
@@ -159,7 +140,8 @@ export class AppComponent implements OnInit {
       };
       menuList.push(obj);
       const subMenu = mainMenu[mainIndex].controls?.subMenu?.controls;
-      menuList[mainIndex].subMenu = [];
+      menuList[mainIndex].subMenu = menuList[mainIndex].subMenu || [];
+      //sub menu
       subMenu.map((subItem: any, subIndex: number) => {
         menuList[mainIndex].subMenu.push({
           name: subItem.controls.name.value,
@@ -168,8 +150,9 @@ export class AppComponent implements OnInit {
         const subMenuInner =
           mainMenu[mainIndex].controls?.subMenu.controls[subIndex].controls
             .subMenuInner.controls;
-        menuList[mainIndex].subMenu[subIndex].subMenuInner = [];
-        subMenuInner.map((innerItem: any, subIndex: number) => {
+        menuList[mainIndex].subMenu[subIndex].subMenuInner =
+          menuList[mainIndex].subMenu[subIndex].subMenuInner || [];
+        subMenuInner.map((innerItem: any) => {
           menuList[mainIndex].subMenu[subIndex].subMenuInner.push({
             name: innerItem.controls.name.value,
             id: innerItem.controls.id.value,
@@ -178,10 +161,25 @@ export class AppComponent implements OnInit {
       });
     });
     this.menuList = menuList;
-    this.enableMenuPreview();
+    this.validateNestedForm();
   }
 
-  enableMenuPreview() {
-    this.menuDisabled = !this.menuList.length;
+  validateNestedForm() {
+    this.menuForm.controls.map((main: any, mainIndex: number) => {
+      main.updateValueAndValidity();
+      main.controls.subMenu.controls.map((subMenu: any, subIndex: number) => {
+        subMenu.updateValueAndValidity();
+        subMenu.controls.subMenuInner.controls.map(
+          (innerMenu: any, innerIndex: number) => {
+            innerMenu.updateValueAndValidity();
+            if (this.menuForm.valid) {
+              this.menuDisabled = false;
+            } else {
+              this.menuDisabled = true;
+            }
+          }
+        );
+      });
+    });
   }
 }

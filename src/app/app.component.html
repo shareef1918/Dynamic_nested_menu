@@ -51,6 +51,7 @@
                   matInput
                   [formControl]="subMenu.controls.name"
                   placeholder="Ex. Home"
+                  (change)="generateMenuList()"
                 />
               </mat-form-field>
             </div>
@@ -85,6 +86,7 @@
                     matInput
                     [formControl]="subMenuInner.controls.name"
                     placeholder="Ex. Home"
+                    (change)="generateMenuList()"
                   />
                 </mat-form-field>
               </div>
